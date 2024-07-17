@@ -1,0 +1,9 @@
+{
+    "name": "SkinnedRendererPatch",
+    "version_number": "1.0.0",
+    "website_url": "",
+    "description": "Patches the games variant system to add support for SkinnedMeshRenderers",
+    "dependencies": [
+        "BepInEx-BepInExPack-5.4.2100"
+    ]
+}
