@@ -19,8 +19,6 @@ public class SkinnedRendererPatch : BaseUnityPlugin
 
     public static bool LilosScrapExtensionPresent;
 
-    public static Assembly AssemblyLilosScrapExtension;
-
     private void Awake()
     {
         Logger = base.Logger;
@@ -28,7 +26,7 @@ public class SkinnedRendererPatch : BaseUnityPlugin
 
         Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} has started, patching gamecode");
 
-        AssemblyLilosScrapExtension = DynamicDependency("DarthLilo.LilosScrapExtension");
+        LilosScrapExtensionPresent = IsPluginInstalled("DarthLilo.LilosScrapExtension");
 
         Patch();
         
@@ -61,25 +59,6 @@ public class SkinnedRendererPatch : BaseUnityPlugin
     private static bool IsPluginInstalled(string targetPlugin)
     {
         return Chainloader.PluginInfos.ContainsKey(targetPlugin);
-    }
-
-    private static Assembly DynamicDependency(string targetPlugin)
-    {   
-        Assembly targetAssembly = null;
-
-        if (!IsPluginInstalled(targetPlugin)) return targetAssembly;
-
-        var pluginInfo = Chainloader.PluginInfos[targetPlugin];
-        try
-        {
-            targetAssembly = Assembly.LoadFrom(pluginInfo.Location);
-            Logger.LogInfo($"Loaded Soft Dependency {targetPlugin}!");
-            return targetAssembly;
-        } catch (FileNotFoundException) {
-            Logger.LogInfo($"Unable to find {targetPlugin}, skipping");
-            return targetAssembly;
-        }
-
     }
 
     internal static void Patch()

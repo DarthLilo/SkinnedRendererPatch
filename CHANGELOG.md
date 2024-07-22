@@ -1,3 +1,6 @@
+# 1.1.1
+- Rewrote how the soft dependency was loaded to be more in line with standards
+
 # 1.1.0
 - Fixed item state desync errors when when loading items that weren't in the save file
 

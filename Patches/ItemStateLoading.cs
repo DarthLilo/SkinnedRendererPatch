@@ -6,6 +6,7 @@ using HarmonyLib;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using SkinnedRendererPatch.Helpers;
+using SkinnedRendererPatch.ModCompatability;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -67,11 +68,10 @@ public class ItemStateLoading
         int[]? meshIndexes = null;
         int[]? matIndexes = null;
         bool[]? lilosTriggerIndexes = null;
-        Assembly LSEA = SkinnedRendererPatch.AssemblyLilosScrapExtension;
 
         if (flag1) {meshIndexes = ES3.Load<int[]>("shipGrabbableMeshIndexes",GameNetworkManager.Instance.currentSaveFileName);}
         if (flag2) {matIndexes = ES3.Load<int[]>("shipGrabbableMaterialIndexes",GameNetworkManager.Instance.currentSaveFileName);}
-        if (LSEA != null && flag3) {lilosTriggerIndexes = ES3.Load<bool[]>("lilosScrapExtensionTriggered",GameNetworkManager.Instance.currentSaveFileName);}
+        if (SkinnedRendererPatch.LilosScrapExtensionPresent && flag3) {lilosTriggerIndexes = ES3.Load<bool[]>("lilosScrapExtensionTriggered",GameNetworkManager.Instance.currentSaveFileName);}
         
         int curMeshIndex = 0;
         int curMatIndex = 0;
@@ -144,52 +144,12 @@ public class ItemStateLoading
                     SkinnedRendererPatch.Logger.LogError($"Error when updating item states, most likely due to a removed mod! " + ex);
                 }
 
-                if (LSEA != null && lilosTriggerIndexes != null) {
-                    Type CollectedScrapTriggerType = LSEA.GetType("LilosScrapExtension.Scripts.CollectedScrapTrigger");
+                if (SkinnedRendererPatch.LilosScrapExtensionPresent && lilosTriggerIndexes != null) {
+                    //Type CollectedScrapTriggerType = LSEA.GetType("LilosScrapExtension.Scripts.CollectedScrapTrigger");
                     if (lilosTriggerIndexes[curTriggerIndex] != false)
                     {
-                        // Store Networking Data
                         LSEAIndexesDICT.Add(component.gameObject.GetComponent<NetworkObject>().NetworkObjectId,lilosTriggerIndexes[curTriggerIndex]);
-                        // Apply custom LSEA data
-
-                        var collected_scrap_trigger = component.gameObject.GetComponent(CollectedScrapTriggerType);
-                        var mesh_filter = component.gameObject.GetComponent<MeshFilter>();
-                        var mesh_render = component.gameObject.GetComponent<MeshRenderer>();
-                        if (collected_scrap_trigger != null)
-                        {
-                            FieldInfo triggeredField = CollectedScrapTriggerType.GetField("Triggered");
-                            triggeredField.SetValue(collected_scrap_trigger, lilosTriggerIndexes[curTriggerIndex]);
-
-                            FieldInfo newMeshField = CollectedScrapTriggerType.GetField("newMesh");
-                            FieldInfo newMaterialField = CollectedScrapTriggerType.GetField("newMaterial");
-
-
-                            //collected_scrap_trigger.Triggered = lilosTriggerIndexes[curTriggerIndex];
-
-                            if (mesh_filter != null && newMeshField.GetValue(collected_scrap_trigger) != null)
-                            {
-                                mesh_filter.mesh = newMeshField.GetValue(collected_scrap_trigger) as Mesh;
-                            }
-
-                            if (mesh_render != null && newMaterialField.GetValue(collected_scrap_trigger) != null)
-                            {
-                                mesh_render.sharedMaterial = newMaterialField.GetValue(collected_scrap_trigger) as Material;
-                            }
-
-                            foreach (var child in ItemStateSaving.GetSkinnedChildren(component.gameObject.transform))
-                            {
-                                if (newMeshField.GetValue(collected_scrap_trigger) != null)
-                                {
-                                    child.GetComponent<SkinnedMeshRenderer>().sharedMesh = newMeshField.GetValue(collected_scrap_trigger) as Mesh;
-                                }
-
-                                if (newMaterialField.GetValue(collected_scrap_trigger) != null)
-                                {
-                                    child.GetComponent<SkinnedMeshRenderer>().sharedMaterial = newMaterialField.GetValue(collected_scrap_trigger) as Material;
-                                }
-                            }
-
-                        }
+                        LilosScrapExtensionCompat.ApplyCustomLSEAData(component,lilosTriggerIndexes[curTriggerIndex]);
                     }
                     curTriggerIndex++;
 

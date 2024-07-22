@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using HarmonyLib;
-using LilosScrapExtension.Scripts;
-using Mono.Cecil.Cil;
+using SkinnedRendererPatch.ModCompatability;
 using UnityEngine;
 
 namespace SkinnedRendererPatch.Patches;
@@ -27,12 +25,8 @@ public class ItemStateSaving
         List<int> meshIndexes = [];
         List<int> matIndexes = [];
         List<bool> triggeredIndexes = [];
+        
         int curItemIndex = 0;
-
-        // Soft Dependencies
-        Assembly LSEA = SkinnedRendererPatch.AssemblyLilosScrapExtension;
-
-
 
         while (curItemIndex < grabbableObjects.Length && curItemIndex <= StartOfRound.Instance.maxShipItemCapacity)
         {
@@ -86,25 +80,10 @@ public class ItemStateSaving
                                 matIndexes.Add(matIndex);
                             }
                             
-                            if (LSEA != null)
+                            if (SkinnedRendererPatch.LilosScrapExtensionPresent)
                             {
-                                Type CollectedScrapTriggerType = LSEA.GetType("LilosScrapExtension.Scripts.CollectedScrapTrigger");
-                                var collected_scrap_trigger = grabbableObjects[curItemIndex].gameObject.GetComponent(CollectedScrapTriggerType);
-                                if (collected_scrap_trigger != null)
-                                {
-                                    FieldInfo triggeredField = CollectedScrapTriggerType.GetField("Triggered");
-
-                                    if ((bool)triggeredField.GetValue(collected_scrap_trigger))
-                                    {
-                                        triggeredIndexes.Add(true);
-                                    } else {
-                                        triggeredIndexes.Add(false);
-                                    }
-                                } else {
-                                    triggeredIndexes.Add(false);
-                                }
+                                triggeredIndexes.Add(LilosScrapExtensionCompat.DetermineTriggered(grabbableObjects[curItemIndex]));
                             }
-
 
                             break;
                         }
@@ -116,7 +95,7 @@ public class ItemStateSaving
 
         ES3.Save<int[]>("shipGrabbableMeshIndexes", meshIndexes.ToArray(), __instance.currentSaveFileName);
         ES3.Save<int[]>("shipGrabbableMaterialIndexes", matIndexes.ToArray(), __instance.currentSaveFileName);
-        if (LSEA != null)
+        if (SkinnedRendererPatch.LilosScrapExtensionPresent)
         {
             ES3.Save<bool[]>("lilosScrapExtensionTriggered",triggeredIndexes.ToArray(),__instance.currentSaveFileName);
         

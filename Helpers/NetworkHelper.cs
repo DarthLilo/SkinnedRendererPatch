@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using Newtonsoft.Json;
+using SkinnedRendererPatch.ModCompatability;
 using SkinnedRendererPatch.Patches;
 using Unity.Netcode;
 using UnityEngine;
@@ -12,7 +13,6 @@ namespace SkinnedRendererPatch.Helpers
     internal class SRPNetworkHelper : NetworkBehaviour
     {
         public static SRPNetworkHelper Instance { get; private set; }
-        public static Assembly LSEA = SkinnedRendererPatch.AssemblyLilosScrapExtension;
 
         private void Start()
         {
@@ -27,6 +27,8 @@ namespace SkinnedRendererPatch.Helpers
             // Creating reference of all active gameobjects
             GrabbableObject[] grabbableObjects = UnityEngine.Object.FindObjectsByType<GrabbableObject>(FindObjectsInactive.Exclude,FindObjectsSortMode.None);
             Dictionary<ulong, GrabbableObject> grabObjIds = [];
+
+            if (grabbableObjects.Length == 0) return;
             
             // CREATING REFERENCES
             foreach (var obj in grabbableObjects)
@@ -62,7 +64,7 @@ namespace SkinnedRendererPatch.Helpers
 
 
             // LSEA CHANGES
-            if (LSEA != null)
+            if (SkinnedRendererPatch.LilosScrapExtensionPresent)
             {
                 SkinnedRendererPatch.Logger.LogInfo("DarthLilo.LilosScrapExtention is present, checking for extra changes");
                 if (LSEAIndexes != null && LSEAIndexes != "")
@@ -133,7 +135,6 @@ namespace SkinnedRendererPatch.Helpers
 
         public void ApplyLSEAChanges(Dictionary<ulong, GrabbableObject> grabbableObjs, string LSEAChangesString)
         {
-            Type CollectedScrapTriggerType = LSEA.GetType("LilosScrapExtension.Scripts.CollectedScrapTrigger");
             Dictionary<ulong, bool>? LSEAIndexesDICT = JsonConvert.DeserializeObject<Dictionary<ulong, bool>>(LSEAChangesString);
             
             if (LSEAIndexesDICT != null && LSEAIndexesDICT.Count != 0)
@@ -144,42 +145,7 @@ namespace SkinnedRendererPatch.Helpers
                     {
                         SkinnedRendererPatch.Logger.LogDebug($"[LSEA APPLY] - GameObject: [{grabbableObjs[kvp.Key].gameObject.name}] - NetworkObjectID: [{kvp.Key}]");
                         GrabbableObject targetOBJ = grabbableObjs[kvp.Key];
-                        var collected_scrap_trigger = targetOBJ.gameObject.GetComponent(CollectedScrapTriggerType);
-                        var mesh_filter = targetOBJ.gameObject.GetComponent<MeshFilter>();
-                        var mesh_render = targetOBJ.gameObject.GetComponent<MeshRenderer>();
-
-                        if (collected_scrap_trigger != null)
-                        {
-                            // FIELD INFOS
-                            FieldInfo newMeshField = CollectedScrapTriggerType.GetField("newMesh");
-                            FieldInfo newMaterialField = CollectedScrapTriggerType.GetField("newMaterial");
-
-                            // APPLYING NEW MESH
-                            if (mesh_filter != null && newMeshField.GetValue(collected_scrap_trigger) != null)
-                            {
-                                mesh_filter.mesh = newMeshField.GetValue(collected_scrap_trigger) as Mesh;
-                            }
-
-                            // APPLYING NEW MATERIAL
-                            if (mesh_render != null && newMaterialField.GetValue(collected_scrap_trigger) != null)
-                            {
-                                mesh_render.sharedMaterial = newMaterialField.GetValue(collected_scrap_trigger) as Material;
-                            }
-
-                            //APPLYING NEW DATA TO SKINNED RENDERERS
-                            foreach (var child in ItemStateSaving.GetSkinnedChildren(targetOBJ.gameObject.transform))
-                            {
-                                if (newMeshField.GetValue(collected_scrap_trigger) != null)
-                                {
-                                    child.GetComponent<SkinnedMeshRenderer>().sharedMesh = newMeshField.GetValue(collected_scrap_trigger) as Mesh;
-                                }
-
-                                if (newMaterialField.GetValue(collected_scrap_trigger) != null)
-                                {
-                                    child.GetComponent<SkinnedMeshRenderer>().sharedMaterial = newMaterialField.GetValue(collected_scrap_trigger) as Material;
-                                }
-                            }
-                        }
+                        LilosScrapExtensionCompat.ApplyCustomLSEAData(targetOBJ,true);
                     } catch (Exception ex) {
                         SkinnedRendererPatch.Logger.LogError($"ERROR WHEN APPLYING LSEA FOR [{grabbableObjs[kvp.Key].gameObject.name}]: {ex}");
                     }
