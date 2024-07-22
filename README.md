@@ -1,8 +1,8 @@
 # SkinnedRendererPatch
 
-Patches the games variant system to add support for SkinnedMeshRenderers as by default it only attempts to modify MeshRenderers
+Patches the game variant system to support SkinnedMeshRenderers and allows states such as random materials or meshes to be saved across sessions!
 
-This mod does nothing own its own! You wil need to take advantage of Lethal Company's built in variant system to see its effects!
+This mods effects are barely noticible on its own, at most you'll notice flasks having their different shapes retained, this mod is best used as a library for your own scrap mods.
 
 ## How?
 
