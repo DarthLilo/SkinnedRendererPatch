@@ -14,7 +14,7 @@ namespace SkinnedRendererPatch.Patches;
 public class MeshRendererPatch
 {
     public static bool Prefix(RoundManager __instance, ref NetworkObjectReference[] spawnedScrap)
-    {
+    {   
         var ScrapValuesRandom = new System.Random(StartOfRound.Instance.randomMapSeed + 210);
         for (int i = 0; i < spawnedScrap.Length; i++)
         {
@@ -34,6 +34,7 @@ public class MeshRendererPatch
                             {
                                 component.gameObject.GetComponent<MeshFilter>().mesh = component.itemProperties.meshVariants[ScrapValuesRandom.Next(0, component.itemProperties.meshVariants.Length)];
                                 SkinnedRendererPatch.Logger.LogDebug($"Changed {component.gameObject.name} material using MeshRenderer");
+                                //ItemStateSaving.SaveItemState(component.gameObject,false);
                             }
 
                             // Create a list of gameobjects that are children of the main object
@@ -53,6 +54,7 @@ public class MeshRendererPatch
                                 var skinned_mesh_renderer = child.gameObject.GetComponent<SkinnedMeshRenderer>();
                                 skinned_mesh_renderer.sharedMesh = component.itemProperties.meshVariants[ScrapValuesRandom.Next(0, component.itemProperties.meshVariants.Length)];
                                 SkinnedRendererPatch.Logger.LogDebug($"Changed {child.gameObject.name} mesh using SkinnedMeshRenderer");
+                                //ItemStateSaving.SaveItemState(component.gameObject,true);
                             }
                         }
                         // Check for any material variants on the assigned gameobject
@@ -64,6 +66,7 @@ public class MeshRendererPatch
                             {
                                 mesh_renderer.sharedMaterial = component.itemProperties.materialVariants[ScrapValuesRandom.Next(0, component.itemProperties.materialVariants.Length)];
                                 SkinnedRendererPatch.Logger.LogDebug($"Changed {component.gameObject.name} material using MeshRenderer");
+                                //ItemStateSaving.SaveItemState(component.gameObject,false);
                             }
 
                             // Create a list of gameobjects that are children of the main object
@@ -83,6 +86,7 @@ public class MeshRendererPatch
                                 var skinned_mesh_renderer = child.gameObject.GetComponent<SkinnedMeshRenderer>();
                                 skinned_mesh_renderer.sharedMaterial = component.itemProperties.materialVariants[ScrapValuesRandom.Next(0, component.itemProperties.materialVariants.Length)];;
                                 SkinnedRendererPatch.Logger.LogDebug($"Changed {child.gameObject.name} material using SkinnedMeshRenderer");
+                                //ItemStateSaving.SaveItemState(component.gameObject,true);
                             }
 
                             

@@ -1,6 +1,6 @@
 {
     "name": "SkinnedRendererPatch",
-    "version_number": "1.0.0",
+    "version_number": "1.1.0",
     "website_url": "https://github.com/DarthLilo/SkinnedRendererPatch",
     "description": "Patches the games variant system to add support for SkinnedMeshRenderers",
     "dependencies": [
