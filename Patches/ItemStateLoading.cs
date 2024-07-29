@@ -93,7 +93,7 @@ public class ItemStateLoading
             {
                 try
                 {
-                    if (meshIndexes != null)
+                    if (meshIndexes != null && meshIndexes.Length != 0)
                     {
                         if (meshIndexes[curMeshIndex] != -1)
                         {
@@ -121,7 +121,7 @@ public class ItemStateLoading
 
                 try
                 {
-                    if (matIndexes != null)
+                    if (matIndexes != null && matIndexes.Length != 0)
                     {
                         if (matIndexes[curMatIndex] != -1)
                         {
@@ -144,8 +144,7 @@ public class ItemStateLoading
                     SkinnedRendererPatch.Logger.LogError($"Error when updating item states, most likely due to a removed mod! " + ex);
                 }
 
-                if (SkinnedRendererPatch.LilosScrapExtensionPresent && lilosTriggerIndexes != null) {
-                    //Type CollectedScrapTriggerType = LSEA.GetType("LilosScrapExtension.Scripts.CollectedScrapTrigger");
+                if (SkinnedRendererPatch.LilosScrapExtensionPresent && lilosTriggerIndexes != null && lilosTriggerIndexes.Length != 0) {
                     if (lilosTriggerIndexes[curTriggerIndex] != false)
                     {
                         LSEAIndexesDICT.Add(component.gameObject.GetComponent<NetworkObject>().NetworkObjectId,lilosTriggerIndexes[curTriggerIndex]);

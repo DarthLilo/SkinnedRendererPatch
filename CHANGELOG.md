@@ -1,3 +1,6 @@
+# 1.1.2
+- Fixed an issue with loading empty save data
+
 # 1.1.1
 - Rewrote how the soft dependency was loaded to be more in line with standards
 
