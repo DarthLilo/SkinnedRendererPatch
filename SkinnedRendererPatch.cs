@@ -37,15 +37,15 @@ public class SkinnedRendererPatch : BaseUnityPlugin
         var types = Assembly.GetExecutingAssembly().GetTypes();
            foreach (var type in types)
            {
-                Logger.LogInfo($"Type: {type}");
+                //Logger.LogInfo($"Type: {type}");
                 var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
                 foreach (var method in methods)
                 {   
-                    Logger.LogInfo($"Method: {method}");
+                    //Logger.LogInfo($"Method: {method}");
                     var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
                     if (attributes.Length > 0)
                     {
-                        Logger.LogInfo($"Invoking {method}");
+                        //Logger.LogInfo($"Invoking {method}");
                         method.Invoke(null, null);
                     }
                 }
@@ -54,6 +54,8 @@ public class SkinnedRendererPatch : BaseUnityPlugin
         // NETCODE PATCHING STUFF
 
         Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
+
+        Logger.LogInfo($"If you see errors relating to objects not containing a grabbable object during level loading, these are safe to ignore and won't affect gameplay");
     }
 
     private static bool IsPluginInstalled(string targetPlugin)

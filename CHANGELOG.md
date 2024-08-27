@@ -1,3 +1,7 @@
+# 1.1.3
+- Removed some transpiler code which was causing compatability errors, this may result in false positive errors for grabbable objects during scrap spawning, these are safe to ignore.
+- Cleaned up some extra logging
+
 # 1.1.2
 - Fixed an issue with loading empty save data
 
